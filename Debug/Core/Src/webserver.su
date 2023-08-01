@@ -2,7 +2,7 @@
 ../Core/Src/webserver.c:53:7:randomSSIDGeneration	24	static
 ../Core/Src/webserver.c:72:6:restartSSID	8	static
 ../Core/Src/webserver.c:80:5:MultiPartTabCount	32	static
-../Core/Src/webserver.c:101:14:ssi_handler	168	static
+../Core/Src/webserver.c:101:14:ssi_handler	120	static
 ../Core/Src/webserver.c:447:13:FormCGI_Handler	32	static
 ../Core/Src/webserver.c:476:13:LoginCGI_Handler	32	static
 ../Core/Src/webserver.c:501:13:SelectCGI_Handler	32	static
