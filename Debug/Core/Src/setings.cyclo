@@ -1,0 +1,11 @@
+setings.c:28:5:enablePort	8
+setings.c:72:6:SetSetingsConfig	2
+setings.c:147:6:StartSetingsConfig	2
+setings.c:245:6:GetSetingsConfig	3
+setings.c:318:6:GetCronConfig	4
+setings.c:352:6:SetCronConfig	3
+setings.c:397:6:GetPinConfig	4
+setings.c:449:6:SetPinConfig	3
+setings.c:502:6:GetPinToPin	4
+setings.c:536:6:SetPinToPin	3
+setings.c:574:6:InitPin	7
