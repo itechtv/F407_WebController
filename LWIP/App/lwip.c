@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * File Name          : LWIP.c
- * Description        : This file provides initialization code for LWIP
- *                      middleWare.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2023 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  * File Name          : LWIP.c
+  * Description        : This file provides initialization code for LWIP
+  *                      middleWare.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -32,13 +32,16 @@
 extern struct dbSettings SetSettings;
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
-static void ethernet_link_status_updated(struct netif *netif);
 /* ETH Variables initialization ----------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
+/* Semaphore to signal Ethernet Link state update */
+osSemaphoreId Netif_LinkSemaphore = NULL;
+/* Ethernet link thread Argument */
+struct link_str link_arg;
 
 /* Variables Initialization */
 struct netif gnetif;
@@ -54,65 +57,82 @@ uint8_t GATEWAY_ADDRESS[4];
 /* USER CODE END 2 */
 
 /**
- * LwIP initialization function
- */
-void MX_LWIP_Init(void) {
-	/* IP addresses initialization */
-	IP_ADDRESS[0] = SetSettings.ip_addr0;
-	IP_ADDRESS[1] = SetSettings.ip_addr1;
-	IP_ADDRESS[2] = SetSettings.ip_addr2;
-	IP_ADDRESS[3] = SetSettings.ip_addr3;
-	NETMASK_ADDRESS[0] = SetSettings.sb_mask0;
-	NETMASK_ADDRESS[1] = SetSettings.sb_mask1;
-	NETMASK_ADDRESS[2] = SetSettings.sb_mask2;
-	NETMASK_ADDRESS[3] = SetSettings.sb_mask3;
-	GATEWAY_ADDRESS[0] = SetSettings.gateway0;
-	GATEWAY_ADDRESS[1] = SetSettings.gateway1;
-	GATEWAY_ADDRESS[2] = SetSettings.gateway2;
-	GATEWAY_ADDRESS[3] = SetSettings.gateway3;
+  * LwIP initialization function
+  */
+void MX_LWIP_Init(void)
+{
+  /* IP addresses initialization */
+  IP_ADDRESS[0] = 192;
+  IP_ADDRESS[1] = 168;
+  IP_ADDRESS[2] = 18;
+  IP_ADDRESS[3] = 27;
+  NETMASK_ADDRESS[0] = 255;
+  NETMASK_ADDRESS[1] = 255;
+  NETMASK_ADDRESS[2] = 255;
+  NETMASK_ADDRESS[3] = 0;
+  GATEWAY_ADDRESS[0] = 192;
+  GATEWAY_ADDRESS[1] = 168;
+  GATEWAY_ADDRESS[2] = 18;
+  GATEWAY_ADDRESS[3] = 1;
 
-	/* USER CODE BEGIN IP_ADDRESSES */
-	/* USER CODE END IP_ADDRESSES */
+/* USER CODE BEGIN IP_ADDRESSES */
+  IP_ADDRESS[0] = SetSettings.ip_addr0;
+  IP_ADDRESS[1] = SetSettings.ip_addr1;
+  IP_ADDRESS[2] = SetSettings.ip_addr2;
+  IP_ADDRESS[3] = SetSettings.ip_addr3;
+  NETMASK_ADDRESS[0] = SetSettings.sb_mask0;
+  NETMASK_ADDRESS[1] = SetSettings.sb_mask1;
+  NETMASK_ADDRESS[2] = SetSettings.sb_mask2;
+  NETMASK_ADDRESS[3] = SetSettings.sb_mask3;
+  GATEWAY_ADDRESS[0] = SetSettings.gateway0;
+  GATEWAY_ADDRESS[1] = SetSettings.gateway1;
+  GATEWAY_ADDRESS[2] = SetSettings.gateway2;
+  GATEWAY_ADDRESS[3] = SetSettings.gateway3;
+/* USER CODE END IP_ADDRESSES */
 
-	/* Initilialize the LwIP stack with RTOS */
-	tcpip_init( NULL, NULL);
+  /* Initilialize the LwIP stack with RTOS */
+  tcpip_init( NULL, NULL );
 
-	/* IP addresses initialization without DHCP (IPv4) */
-	IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2],
-			IP_ADDRESS[3]);
-	IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1],
-			NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
-	IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2],
-			GATEWAY_ADDRESS[3]);
+  /* IP addresses initialization without DHCP (IPv4) */
+  IP4_ADDR(&ipaddr, IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
+  IP4_ADDR(&netmask, NETMASK_ADDRESS[0], NETMASK_ADDRESS[1] , NETMASK_ADDRESS[2], NETMASK_ADDRESS[3]);
+  IP4_ADDR(&gw, GATEWAY_ADDRESS[0], GATEWAY_ADDRESS[1], GATEWAY_ADDRESS[2], GATEWAY_ADDRESS[3]);
 
-	/* add the network interface (IPv4/IPv6) with RTOS */
-	netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init,
-			&tcpip_input);
+  /* add the network interface (IPv4/IPv6) with RTOS */
+  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
-	/* Registers the default network interface */
-	netif_set_default(&gnetif);
+  /* Registers the default network interface */
+  netif_set_default(&gnetif);
 
-	if (netif_is_link_up(&gnetif)) {
-		/* When the netif is fully configured this function must be called */
-		netif_set_up(&gnetif);
-	} else {
-		/* When the netif link is down this function must be called */
-		netif_set_down(&gnetif);
-	}
+  if (netif_is_link_up(&gnetif))
+  {
+    /* When the netif is fully configured this function must be called */
+    netif_set_up(&gnetif);
+  }
+  else
+  {
+    /* When the netif link is down this function must be called */
+    netif_set_down(&gnetif);
+  }
 
-	/* Set the link callback function, this function is called on change of link status*/
-	netif_set_link_callback(&gnetif, ethernet_link_status_updated);
+  /* Set the link callback function, this function is called on change of link status*/
+  netif_set_link_callback(&gnetif, ethernetif_update_config);
 
-	/* Create the Ethernet link handler thread */
-	/* USER CODE BEGIN H7_OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
-	osThreadDef(EthLink, ethernet_link_thread, osPriorityBelowNormal, 0,
-			configMINIMAL_STACK_SIZE *2);
-	osThreadCreate(osThread(EthLink), &gnetif);
-	/* USER CODE END H7_OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
+  /* create a binary semaphore used for informing ethernetif of frame reception */
+  osSemaphoreDef(Netif_SEM);
+  Netif_LinkSemaphore = osSemaphoreCreate(osSemaphore(Netif_SEM) , 1 );
 
-	/* USER CODE BEGIN 3 */
+  link_arg.netif = &gnetif;
+  link_arg.semaphore = Netif_LinkSemaphore;
+  /* Create the Ethernet link handler thread */
+/* USER CODE BEGIN OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
+  osThreadDef(LinkThr, ethernetif_set_link, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
+  osThreadCreate (osThread(LinkThr), &link_arg);
+/* USER CODE END OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
 
-	/* USER CODE END 3 */
+/* USER CODE BEGIN 3 */
+
+/* USER CODE END 3 */
 }
 
 #ifdef USE_OBSOLETE_USER_CODE_SECTION_4
@@ -121,22 +141,6 @@ void MX_LWIP_Init(void) {
 /* USER CODE BEGIN 4 */
 /* USER CODE END 4 */
 #endif
-
-/**
- * @brief  Notify the User about the network interface config status
- * @param  netif: the network interface
- * @retval None
- */
-static void ethernet_link_status_updated(struct netif *netif) {
-	if (netif_is_up(netif)) {
-		/* USER CODE BEGIN 5 */
-		/* USER CODE END 5 */
-	} else /* netif is down */
-	{
-		/* USER CODE BEGIN 6 */
-		/* USER CODE END 6 */
-	}
-}
 
 #if defined ( __CC_ARM )  /* MDK ARM Compiler */
 /**

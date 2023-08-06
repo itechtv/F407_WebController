@@ -97,7 +97,7 @@ void example_do_connect(mqtt_client_t *client, const char *topic) {
 	memset(&ci, 0, sizeof(ci));
 
 	/* Minimal amount of information required is client identifier, so set it here */
-	ci.client_id = "stm32";
+	ci.client_id = "Zerg";
 	//ci.client_user = "mosquitto";
 	//ci.client_pass = "chupasangre"; /* Tiempo en mi caso */
 
@@ -137,7 +137,7 @@ void example_publish(mqtt_client_t *client, void *arg) {
 	err_t err;
 	u8_t qos = 0; /* 0 1 or 2, see MQTT specification */
 	u8_t retain = 0; /* No don't retain such crappy payload... */
-	err = mqtt_publish(client, "test", pub_payload, strlen(pub_payload),
+	err = mqtt_publish(client, "Zagotovka", pub_payload, strlen(pub_payload),
 			qos, retain, mqtt_pub_request_cb, arg);
 	if (err != ERR_OK) {
 		sprintf(buffer, "Publish err: %d\n\r", err);

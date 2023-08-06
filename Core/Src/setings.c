@@ -14,8 +14,8 @@
 #include "db.h"
 #include "setings.h"
 
-
-char fsbuffer[25500] = { 0 };//2000
+#define fsbuffer_CCMRAM __attribute__((section(".ccmram")))
+char fsbuffer[25500] fsbuffer_CCMRAM = { 0 };//2000
 
 extern struct dbSettings SetSettings;
 extern struct dbCron dbCrontxt[MAXSIZE];

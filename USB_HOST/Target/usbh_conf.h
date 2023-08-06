@@ -96,7 +96,7 @@
 #if (USBH_USE_OS == 1)
   #include "cmsis_os.h"
   #define USBH_PROCESS_PRIO          osPriorityNormal
-  #define USBH_PROCESS_STACK_SIZE    ((uint16_t)8*128)
+  #define USBH_PROCESS_STACK_SIZE    ((uint16_t)128)
 #endif /* (USBH_USE_OS == 1) */
 
 /**
@@ -136,7 +136,7 @@
 #if (USBH_DEBUG_LEVEL > 1U)
 
 #define  USBH_ErrLog(...) do { \
-                            printf("ERROR: "); \
+                            printf("ERROR: ") ; \
                             printf(__VA_ARGS__); \
                             printf("\n"); \
 } while (0)
@@ -146,7 +146,7 @@
 
 #if (USBH_DEBUG_LEVEL > 2U)
 #define  USBH_DbgLog(...)   do { \
-                            printf("DEBUG : "); \
+                            printf("DEBUG : ") ; \
                             printf(__VA_ARGS__); \
                             printf("\n"); \
 } while (0)

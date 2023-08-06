@@ -482,12 +482,14 @@ const char* LoginCGI_Handler(int iIndex, int iNumParams, char *pcParam[],
 				printf("OK Get 1 \n");
 				if(strcmp(pcValue[i], SetSettings.adm_name) == 0){
 					verifyNum++;
+					//printf("username OK! \n");
 				}
 
 			} else if(strcmp(pcParam[i], "password") == 0) {
 				printf("OK Get 2 \n");
 				if(strcmp(pcValue[i], SetSettings.adm_pswd) == 0){
 					verifyNum++;
+					//printf("password OK! \n");
 				}
 			}
 		}

@@ -35,6 +35,9 @@
 #include "lwdtc.h"
 #include "cJSON.h"
 #include "setings.h"
+
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram"))) = {0};
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +48,6 @@ uint16_t usbnum = 0;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -255,7 +257,6 @@ void SystemClock_Config(void)
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -265,24 +266,23 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 72;
+  RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 3;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
-
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
@@ -306,7 +306,6 @@ static void MX_RTC_Init(void)
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
-
   /** Initialize RTC Only
   */
   hrtc.Instance = RTC;
@@ -392,8 +391,6 @@ static void MX_USART3_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -412,8 +409,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(VBUS_GPIO_Port, &GPIO_InitStruct);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -569,7 +564,7 @@ void parse_string(char *str, time_t cronetime_olds, int i, int pause) {
 void StartWebServerTask(void const * argument)
 {
   /* init code for LWIP */
-	ulTaskNotifyTake(0, portMAX_DELAY);  //
+  ulTaskNotifyTake(0, portMAX_DELAY);  //
   MX_LWIP_Init();
 
   /* init code for USB_HOST */
@@ -604,21 +599,22 @@ void StartSSIDTask(void const * argument)
 {
   /* USER CODE BEGIN StartSSIDTask */
 	ulTaskNotifyTake(0, portMAX_DELAY);
-	//
-	/* Infinite loop */
-	for (;;) {
-		if (strlen(randomSSID) != 0) {
-			if (HAL_GetTick() - Ti >= 500000) {
-				Ti = HAL_GetTick();
-				memset(&randomSSID, '\0', sizeof(randomSSID));
+		//
+		/* Infinite loop */
+		for (;;) {
+			if (strlen(randomSSID) != 0) {
+				if (HAL_GetTick() - Ti >= 500000) {
+					Ti = HAL_GetTick();
+					memset(&randomSSID, '\0', sizeof(randomSSID));
+				}
 			}
+			osDelay(1);
 		}
-		osDelay(1);
-	}
   /* USER CODE END StartSSIDTask */
 }
 
 /* USER CODE BEGIN Header_StartCronTask */
+
 /**
 * @brief Function implementing the CronTask thread.
 * @param argument: Not used
@@ -744,10 +740,13 @@ void StartConfigTask(void const * argument)
 	//FRESULT fresult;
 	FILINFO finfo;
 	//UINT Byteswritten; // File read/write count
+
 	MX_FATFS_Init();
+	osDelay(1000);//?????????????????????????????????????????????????????????????????????????
 	/* init code for USB_HOST */
 
 	MX_USB_HOST_Init();
+	osDelay(1000);//?????????????????????????????????????????????????????????????????????????
 	/* Infinite loop */
 	for (;;) {
 		switch (Appli_state) {
@@ -914,3 +913,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+

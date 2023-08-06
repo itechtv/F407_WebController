@@ -1,2 +1,2 @@
-../Core/Src/lwip_sntp.c:24:6:set_sntp_server_list	72	static
-../Core/Src/lwip_sntp.c:54:6:bsp_sntp_init	8	static
+lwip_sntp.c:24:6:set_sntp_server_list	72	static
+lwip_sntp.c:54:6:bsp_sntp_init	8	static

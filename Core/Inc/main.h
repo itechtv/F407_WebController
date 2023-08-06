@@ -59,7 +59,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define VBUS_Pin GPIO_PIN_0
 #define VBUS_GPIO_Port GPIOB
-
 /* USER CODE BEGIN Private defines */
 typedef struct data_pin_t {
 	int pin;

@@ -70,7 +70,7 @@
 #define	_USE_EXPAND		0
 /* This option switches f_expand function. (0:Disable or 1:Enable) */
 
-#define _USE_CHMOD		0
+#define _USE_CHMOD		1
 /* This option switches attribute manipulation functions, f_chmod() and f_utime().
 /  (0:Disable or 1:Enable) Also _FS_READONLY needs to be 0 to enable this option. */
 
@@ -146,7 +146,7 @@
 /
 /  This option has no effect when _LFN_UNICODE == 0. */
 
-#define _FS_RPATH       0 /* 0 to 2 */
+#define _FS_RPATH       2 /* 0 to 2 */
 /* This option configures support of relative path.
 /
 /   0: Disable relative path and remove related functions.

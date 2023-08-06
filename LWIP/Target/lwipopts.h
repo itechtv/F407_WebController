@@ -41,8 +41,6 @@
 /* Parameters set in STM32CubeMX LwIP Configuration GUI -*/
 /*----- WITH_RTOS enabled (Since FREERTOS is set) -----*/
 #define WITH_RTOS 1
-/* Temporary workaround to avoid conflict on errno defined in STM32CubeIDE and lwip sys_arch.c errno */
-#undef LWIP_PROVIDE_ERRNO
 /*----- CHECKSUM_BY_HARDWARE enabled -----*/
 #define CHECKSUM_BY_HARDWARE 1
 /*-----------------------------------------------------------------------------*/
@@ -97,6 +95,8 @@
 #define LWIP_HTTPD_SSI 1
 /*----- Default Value for LWIP_HTTPD_SUPPORT_POST: 0 ---*/
 #define LWIP_HTTPD_SUPPORT_POST 1
+/*----- Default Value for LWIP_HTTPD_SSI_MULTIPART: 0 ---*/
+#define LWIP_HTTPD_SSI_MULTIPART 1
 /*----- Default Value for LWIP_HTTPD_MAX_TAG_NAME_LEN: 8 ---*/
 #define LWIP_HTTPD_MAX_TAG_NAME_LEN 10
 /*----- Default Value for LWIP_HTTPD_MAX_TAG_INSERT_LEN: 192 ---*/
