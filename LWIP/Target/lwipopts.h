@@ -135,7 +135,10 @@
 #define CHECKSUM_CHECK_ICMP6 0
 /*-----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
-
+#define SNTP_DEBUG LWIP_DBG_ON
+ //Define the processing function of Lwip SNTP
+#include <lwip_sntp.h>
+#define SNTP_SET_SYSTEM_TIME		sntp_set_time
 /* USER CODE END 1 */
 
 #ifdef __cplusplus

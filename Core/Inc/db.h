@@ -8,9 +8,9 @@
 #ifndef INC_DB_H_
 #define INC_DB_H_
 
-#define NUMPIN 64 //64 колличество пинов
-#define NUMPINLINKS 100 //100 колличество pin to pin
-#define NUMTASK 30 //30 кол-во CRON task
+#define NUMPIN 5 //64 колличество пинов
+#define NUMPINLINKS 5 //100 колличество pin to pin
+#define NUMTASK 5 //30 кол-во CRON task
 
 #include "stdio.h"
 #include "stm32f4xx_hal.h"

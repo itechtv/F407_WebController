@@ -39,6 +39,7 @@ Middlewares/Third_Party/LwIP/system/OS/sys_arch.o: \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
+ ../Core/Inc/lwip_sntp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/def.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/sys.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/err.h \
@@ -146,6 +147,8 @@ Middlewares/Third_Party/LwIP/system/OS/sys_arch.o: \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
+
+../Core/Inc/lwip_sntp.h:
 
 ../Middlewares/Third_Party/LwIP/src/include/lwip/def.h:
 

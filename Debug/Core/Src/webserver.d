@@ -34,7 +34,7 @@ Core/Src/webserver.o: ../Core/Src/webserver.c ../Core/Inc/webserver.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/tcp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/opt.h \
- ../LWIP/Target/lwipopts.h ../Core/Inc/main.h \
+ ../LWIP/Target/lwipopts.h ../Core/Inc/main.h ../Core/Inc/lwip_sntp.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h \
  ../Middlewares/Third_Party/LwIP/src/include/lwip/arch.h \
  ../Middlewares/Third_Party/LwIP/system/arch/cc.h \
@@ -160,6 +160,8 @@ Core/Src/webserver.o: ../Core/Src/webserver.c ../Core/Inc/webserver.h \
 ../LWIP/Target/lwipopts.h:
 
 ../Core/Inc/main.h:
+
+../Core/Inc/lwip_sntp.h:
 
 ../Middlewares/Third_Party/LwIP/src/include/lwip/debug.h:
 
