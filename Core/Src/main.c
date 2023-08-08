@@ -36,7 +36,7 @@
 #include "cJSON.h"
 #include "setings.h"
 
-uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram"))) = {0};
+//uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram"))) = {0};
 
 /* USER CODE END Includes */
 
