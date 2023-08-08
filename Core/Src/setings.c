@@ -16,7 +16,7 @@
 
 //#define fsbuffer_CCMRAM __attribute__((section(".ccmram")))
 //char fsbuffer[800] fsbuffer_CCMRAM = { 0 };//25500
-char fsbuffer[800] = { 0 };//25500
+char fsbuffer[3000] = { 0 };//25500
 
 extern struct dbSettings SetSettings;
 extern struct dbCron dbCrontxt[MAXSIZE];

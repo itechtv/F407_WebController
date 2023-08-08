@@ -218,7 +218,7 @@ int main(void)
   OutputTaskHandle = osThreadCreate(osThread(OutputTask), NULL);
 
   /* definition and creation of ConfigTask */
-  osThreadStaticDef(ConfigTask, StartConfigTask, osPriorityIdle, 0, 512, ConfigTaskBuffer, &ConfigTaskControlBlock);
+  osThreadStaticDef(ConfigTask, StartConfigTask, osPriorityNormal, 0, 512, ConfigTaskBuffer, &ConfigTaskControlBlock);
   ConfigTaskHandle = osThreadCreate(osThread(ConfigTask), NULL);
 
   /* definition and creation of InputTask */
@@ -564,7 +564,7 @@ void parse_string(char *str, time_t cronetime_olds, int i, int pause) {
 void StartWebServerTask(void const * argument)
 {
   /* init code for LWIP */
-  ulTaskNotifyTake(0, portMAX_DELAY);  //
+	ulTaskNotifyTake(0, portMAX_DELAY);  //
   MX_LWIP_Init();
 
   /* init code for USB_HOST */
@@ -742,11 +742,9 @@ void StartConfigTask(void const * argument)
 	//UINT Byteswritten; // File read/write count
 
 	MX_FATFS_Init();
-	osDelay(1000);//?????????????????????????????????????????????????????????????????????????
 	/* init code for USB_HOST */
 
 	MX_USB_HOST_Init();
-	osDelay(1000);//?????????????????????????????????????????????????????????????????????????
 	/* Infinite loop */
 	for (;;) {
 		switch (Appli_state) {
@@ -840,10 +838,10 @@ void StartInputTask(void const * argument)
 				//printf(" STpin %d \r\n", pinStates[i]);
 				if(pinStates[i] == 1 && (millis - pinTimes[i]) >= 200){
 					pinTimes[i] = millis;
-					printf(" clicks 1 %lu pin %d \r\n", (unsigned long)pinTimes[i], i);
+					//printf(" clicks 1 %lu pin %d \r\n", (unsigned long)pinTimes[i], i);
 
 					for(uint8_t a = 0; a < NUMPINLINKS; a++){
-						printf(" IN %d OUT %d \r\n", PinsLinks[a].idin, PinsLinks[a].idout);
+						//printf(" IN %d OUT %d \r\n", PinsLinks[a].idin, PinsLinks[a].idout);
 						if(PinsLinks[a].idin == i){
 							data_pin.pin = PinsLinks[a].idout;
 							data_pin.action = 2;
