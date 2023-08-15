@@ -57,8 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define VBUS_Pin GPIO_PIN_0
-#define VBUS_GPIO_Port GPIOB
+#define SD_CS_Pin GPIO_PIN_4
+#define SD_CS_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 typedef struct data_pin_t {
 	int pin;

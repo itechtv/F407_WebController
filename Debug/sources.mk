@@ -28,8 +28,6 @@ FATFS/App \
 FATFS/Target \
 LWIP/App \
 LWIP/Target \
-Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src \
-Middlewares/ST/STM32_USB_Host_Library/Core/Src \
 Middlewares/Third_Party/FatFs/src \
 Middlewares/Third_Party/FatFs/src/option \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
@@ -46,6 +44,4 @@ Middlewares/Third_Party/LwIP/src/core/ipv6 \
 Middlewares/Third_Party/LwIP/src/netif \
 Middlewares/Third_Party/LwIP/src/netif/ppp \
 Middlewares/Third_Party/LwIP/system/OS \
-USB_HOST/App \
-USB_HOST/Target \
 

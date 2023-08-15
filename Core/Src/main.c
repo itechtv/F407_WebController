@@ -21,7 +21,6 @@
 #include "cmsis_os.h"
 #include "fatfs.h"
 #include "lwip.h"
-#include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -37,7 +36,8 @@
 #include "setings.h"
 
 //uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram"))) = {0};
-
+/*----------- for CD --------------*/
+#define BUFFER_SIZE 128
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +64,8 @@ char str[40] = { 0 };
 
 /* Private variables ---------------------------------------------------------*/
 RTC_HandleTypeDef hrtc;
+
+SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart3;
 
@@ -98,8 +100,6 @@ extern struct dbPinsConf PinsConf[NUMPIN];
 extern struct dbPinsInfo PinsInfo[NUMPIN];
 extern struct dbPinToPin PinsLinks[NUMPINLINKS];
 
-extern ApplicationTypeDef Appli_state;
-
 RTC_TimeTypeDef sTime = { 0 };
 RTC_DateTypeDef sDate = { 0 };
 /* USER CODE END PV */
@@ -109,6 +109,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_SPI1_Init(void);
 void StartWebServerTask(void const * argument);
 void StartSSIDTask(void const * argument);
 void StartCronTask(void const * argument);
@@ -117,7 +118,14 @@ void StartConfigTask(void const * argument);
 void StartInputTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-
+int _write(int file, char *ptr, int len) {
+	int i;
+	HAL_UART_Transmit(&huart3, (uint8_t*) ptr, len, 50);
+	for (i = 0; i < len; i++) {
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -138,6 +146,39 @@ unsigned long Ti;
 //////////////////////////////////////????????
 mqtt_client_t *client;
 char pacote[50];
+
+
+///*------------------- SD ----------------------*/
+FATFS fs;  // file system
+//FIL fil; // File
+//FRESULT fresult;  // result
+//UINT br, bw;  // File read/write count
+//#define BUFFER_SIZE 128
+//char buffer[BUFFER_SIZE];  // to store strings..
+///**** capacity related *****/
+//FATFS *pfs;
+//DWORD fre_clust;
+//uint32_t total, free_space;
+//
+///* To find the size of data in the bufer */
+//int bufsize (char *buf)
+//{
+//	int i=0;
+//	while (*buf++ != '\0') i++;
+//	return i;
+//}
+//
+//void clear_buffer (void)
+//{
+//	for (int i=0; i<BUFFER_SIZE; i++) buffer[i] = '\0';
+//}
+//
+//void send_uart (char *string)
+//{
+//	uint8_t len = strlen (string);
+//	HAL_UART_Transmit(&huart3, (uint8_t *) string, len, HAL_MAX_DELAY);  // transmit in blocking mode
+//}
+///*-------------------end SD ----------------------*/
 /* USER CODE END 0 */
 
 /**
@@ -171,6 +212,7 @@ int main(void)
   MX_RTC_Init();
   MX_USART3_UART_Init();
 //  MX_FATFS_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -351,6 +393,44 @@ static void MX_RTC_Init(void)
 }
 
 /**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -400,14 +480,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(VBUS_GPIO_Port, VBUS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : VBUS_Pin */
-  GPIO_InitStruct.Pin = VBUS_Pin;
+  /*Configure GPIO pin : SD_CS_Pin */
+  GPIO_InitStruct.Pin = SD_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(VBUS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SD_CS_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -566,9 +646,6 @@ void StartWebServerTask(void const * argument)
   /* init code for LWIP */
 	ulTaskNotifyTake(0, portMAX_DELAY);  //
   MX_LWIP_Init();
-
-  /* init code for USB_HOST */
-//  MX_USB_HOST_Init();
   /* USER CODE BEGIN 5 */
 	http_server_init();
 	osDelay(1000);
@@ -733,85 +810,85 @@ void StartOutputTask(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_StartConfigTask */
-void StartConfigTask(void const * argument)
-{
-  /* USER CODE BEGIN StartConfigTask */
-	int usbflag = 1;
-	//FRESULT fresult;
+void StartConfigTask(void const *argument) {
+	/* USER CODE BEGIN StartConfigTask */
+	int cdflag = 0;
+	FRESULT fresult;
 	FILINFO finfo;
 	//UINT Byteswritten; // File read/write count
 
 	MX_FATFS_Init();
-	/* init code for USB_HOST */
 
-	MX_USB_HOST_Init();
+	/*------------------- SD ----------------------*/
+	fresult = f_mount(&fs, "/", 1);
+	if (fresult != FR_OK) {
+		printf("ERROR!!! in mounting SD CARD...\n\n");
+		cdflag = 0;
+	} else {
+		printf("SD CARD mounted successfully...\n\n");
+		cdflag = 1;
+	}
 	/* Infinite loop */
 	for (;;) {
-		switch (Appli_state) {
-		case APPLICATION_READY:
-			if (usbflag == 1) {
-				osDelay(1000);
-				printf("APPLICATION_READY! \r\n");
-
-				FRESULT fresult = f_stat("setings.ini", &finfo);
-				if (fresult == FR_OK) {
-					GetSetingsConfig();
-					GetCronConfig();
-					GetPinConfig();
-					GetPinToPin();
-
-					InitPin();
-
-					xTaskNotifyGive(WebServerTaskHandle); // ТО ВКЛЮЧАЕМ ЗАДАЧУ WebServerTask
-					xTaskNotifyGive(SSIDTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ SSIDTask
-					xTaskNotifyGive(CronTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ CronTask
-					xTaskNotifyGive(OutputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ OutputTask
-					xTaskNotifyGive(InputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ InputTask
-
-				} else {
-					StartSetingsConfig();
-					xTaskNotifyGive(WebServerTaskHandle); // ТО ВКЛЮЧАЕМ ЗАДАЧУ WebServerTask
-					xTaskNotifyGive(SSIDTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ SSIDTask
-					xTaskNotifyGive(CronTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ CronTask
-					xTaskNotifyGive(OutputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ OutputTask
-					xTaskNotifyGive(InputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ InputTask
-				}
-				usbflag = 0;
-			}
-			/******************************************************************************************/
-			// Функция для чтения целых чисел из очереди
-			if (xQueueReceive(usbQueueHandle, &usbnum, portMAX_DELAY) == pdTRUE) {
-				switch (usbnum) {
-				case 1:
-					SetPinConfig();
-					break;
-				case 2:
-					SetSetingsConfig();
-					break;
-				case 3:
-					SetCronConfig();
-					break;
-				case 4:
-					SetPinToPin();
-					break;
-				default:
-					//printf("Wrong data! \r\n");
-					break;
-				}
-				printf("+++ Received number: %u\n", usbnum);
-			}
-			/******************************************************************************************/
-
-			break;
-		default:
-			//printf("Wrong data! \r\n");
-			break;
+		if (cdflag == 1) {
+			osDelay(1000);
+			printf("SD is mounted & READY! \r\n");
+			cdflag = 0;
 		}
-		osDelay(1);
-	}
-  /* USER CODE END StartConfigTask */
-}
+	/********************* END SD ***************************/
 
+		FRESULT fresult = f_stat("setings.ini", &finfo);
+		if (fresult == FR_OK) {
+			printf("File 'setings.ini' EXIST! \r\n");
+			GetSetingsConfig();
+			GetCronConfig();
+			GetPinConfig();
+			GetPinToPin();
+
+			InitPin();
+
+			xTaskNotifyGive(WebServerTaskHandle); // ТО ВКЛЮЧАЕМ ЗАДАЧУ WebServerTask
+			xTaskNotifyGive(SSIDTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ SSIDTask
+			xTaskNotifyGive(CronTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ CronTask
+			xTaskNotifyGive(OutputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ OutputTask
+			xTaskNotifyGive(InputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ InputTask
+
+		} else {
+			StartSetingsConfig();
+			xTaskNotifyGive(WebServerTaskHandle); // ТО ВКЛЮЧАЕМ ЗАДАЧУ WebServerTask
+			xTaskNotifyGive(SSIDTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ SSIDTask
+			xTaskNotifyGive(CronTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ CronTask
+			xTaskNotifyGive(OutputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ OutputTask
+			xTaskNotifyGive(InputTaskHandle); // И ВКЛЮЧАЕМ ЗАДАЧУ InputTask
+		}
+
+		/******************************************************************************************/
+		// Функция для чтения целых чисел из очереди
+		if (xQueueReceive(usbQueueHandle, &usbnum, portMAX_DELAY) == pdTRUE) {
+			switch (usbnum) {
+			case 1:
+				SetPinConfig();
+				break;
+			case 2:
+				SetSetingsConfig();
+				break;
+			case 3:
+				SetCronConfig();
+				break;
+			case 4:
+				SetPinToPin();
+				break;
+			default:
+				//printf("Wrong data! \r\n");
+				break;
+			}
+			printf("+++ Received number: %u\n", usbnum);
+			/******************************************************************************************/
+			osDelay(1);
+		}
+		/* USER CODE END StartConfigTask */
+	}
+}
 /* USER CODE BEGIN Header_StartInputTask */
 /**
 * @brief Function implementing the InputTask thread.

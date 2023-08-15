@@ -25,18 +25,20 @@ const struct dbPinsInfo PinsInfo[NUMPIN] = {
 		{"PA0", "A", 0, GPIO_PIN_0, GPIOA},
 		{"PA3", "A", 3, GPIO_PIN_3, GPIOA},
 		{"PA4", "A", 4, GPIO_PIN_4, GPIOA},
-		{"PA5", "A", 5, GPIO_PIN_5, GPIOA},
-		{"PA6", "A", 6, GPIO_PIN_6, GPIOA}
-//		{"PA8", "A", 8, GPIO_PIN_8, GPIOA},
-//		{"PA9", "A", 9, GPIO_PIN_9, GPIOA},
+//		{"PA5", "A", 5, GPIO_PIN_5, GPIOA}, // SPI SCK
+//		{"PA6", "A", 6, GPIO_PIN_6, GPIOA}, // SPI MISO
+		{"PA8", "A", 8, GPIO_PIN_8, GPIOA},
+		{"PA9", "A", 9, GPIO_PIN_9, GPIOA}
 //		{"PA10", "A", 10, GPIO_PIN_10, GPIOA},
+//		{"PA11", "A", 11, GPIO_PIN_11, GPIOA}, // USB +/-
+//		{"PA12", "A", 12, GPIO_PIN_12, GPIOA}, // USB +/-
 //		{"PA15", "A", 15, GPIO_PIN_15, GPIOA},
 //
 //		{"PB1", "B", 1, GPIO_PIN_1, GPIOB},
 //		{"PB2", "B", 2, GPIO_PIN_2, GPIOB},
 //		{"PB3", "B", 3, GPIO_PIN_3, GPIOB},
 //		{"PB4", "B", 4, GPIO_PIN_4, GPIOB},
-//		{"PB5", "B", 5, GPIO_PIN_5, GPIOB},
+//		{"PB5", "B", 5, GPIO_PIN_5, GPIOB}, // SPI MOSI
 //		{"PB6", "B", 6, GPIO_PIN_6, GPIOB},
 //		{"PB7", "B", 7, GPIO_PIN_7, GPIOB},
 //		{"PB8", "B", 8, GPIO_PIN_8, GPIOB},

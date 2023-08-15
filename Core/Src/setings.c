@@ -7,7 +7,7 @@
 
 #include "db.h"
 #include "fatfs.h"
-#include "usb_host.h"
+//#include "usb_host.h"
 #include "cJSON.h"
 #include <string.h>
 #include <stdio.h>
@@ -75,8 +75,8 @@ void SetSetingsConfig() {
 	char *out_str = NULL;
 	FRESULT fresult;
 	UINT Byteswritten; // File read/write count
-
-	if (f_open(&USBHFile, (const TCHAR*) "setings.ini", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
+	FIL fil; // File
+	if (f_open(&fil, (const TCHAR*) "setings.ini", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
 
 		root_obj = cJSON_CreateObject();
 		cJSON_AddStringToObject(root_obj, "adm_name", SetSettings.adm_name);
@@ -131,7 +131,7 @@ void SetSetingsConfig() {
 		cJSON_AddNumberToObject(root_obj, "macaddr5", SetSettings.macaddr5);
 
 		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&USBHFile, (const void*) out_str, strlen(out_str), &Byteswritten);
+		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
 		free(out_str);
 
 		if(fresult == FR_OK){
@@ -140,7 +140,7 @@ void SetSetingsConfig() {
 
 		cJSON_Delete(root_obj);
 		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&USBHFile);
+		f_close(&fil);
 	}
 }
 
@@ -150,8 +150,8 @@ void StartSetingsConfig() {
 	char *out_str = NULL;
 	FRESULT fresult;
 	UINT Byteswritten; // File read/write count
-
-	if (f_open(&USBHFile, (const TCHAR*) "setings.ini", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
+	FIL fil; // File
+	if (f_open(&fil, (const TCHAR*) "setings.ini", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
 		printf("f_open! create setings.ini \r\n");
 		root_obj = cJSON_CreateObject();
 
@@ -208,7 +208,7 @@ void StartSetingsConfig() {
 		cJSON_AddNumberToObject(root_obj, "macaddr5", 0); // MAC address
 
 		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&USBHFile, (const void*) out_str, strlen(out_str), &Byteswritten);
+		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
 		free(out_str);
 
 		if(fresult == FR_OK){
@@ -219,7 +219,7 @@ void StartSetingsConfig() {
 
 		cJSON_Delete(root_obj);
 		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&USBHFile);
+		f_close(&fil);
 
 		strcpy(SetSettings.lang, LANG);
 		strcpy(SetSettings.adm_name, ADM_NAME);
@@ -246,12 +246,12 @@ void StartSetingsConfig() {
 void GetSetingsConfig() {
 	FILINFO finfo;
 	FRESULT fresult = f_stat("setings.ini", &finfo);
-
+	FIL fil; // File
 	if (fresult == FR_OK) {
-		if (f_open(&USBHFile, (const TCHAR*) "setings.ini", FA_READ) == FR_OK) {
+		if (f_open(&fil, (const TCHAR*) "setings.ini", FA_READ) == FR_OK) {
 			char fsbuffer[1024];
 			UINT Byteswritten = 0;
-			fresult = f_read(&USBHFile, fsbuffer, sizeof(fsbuffer), &Byteswritten);
+			fresult = f_read(&fil, fsbuffer, sizeof(fsbuffer), &Byteswritten);
 
 			cJSON *root_obj = cJSON_Parse(fsbuffer);
 
@@ -311,7 +311,7 @@ void GetSetingsConfig() {
 
 			cJSON_Delete(root_obj);
 			memset(fsbuffer, '\0', sizeof(fsbuffer));
-			f_close(&USBHFile);
+			f_close(&fil);
 		}
 	}
 }
@@ -321,13 +321,13 @@ void GetCronConfig() {
 	cJSON *root_obj = NULL;
 	FRESULT fresult;
 	UINT Byteswritten; // File read/write count
-
+	FIL fil; // File
 	fresult = f_stat("cron.ini", &finfo);
 	if (fresult == FR_OK) {
 		// если файл существует, открываем его
-		if (f_open(&USBHFile, (const TCHAR*) "cron.ini", FA_READ) == FR_OK) {
+		if (f_open(&fil, (const TCHAR*) "cron.ini", FA_READ) == FR_OK) {
 
-			fresult = f_read(&USBHFile, fsbuffer, sizeof(fsbuffer), &Byteswritten);
+			fresult = f_read(&fil, fsbuffer, sizeof(fsbuffer), &Byteswritten);
 			printf("CRON file EXISTS! \r\n");
 			root_obj = cJSON_Parse(fsbuffer);
 
@@ -344,7 +344,7 @@ void GetCronConfig() {
 			}
 			cJSON_Delete(root_obj);
 			memset(fsbuffer, '\0', sizeof(fsbuffer));
-			f_close(&USBHFile);
+			f_close(&fil);
 		}
 	}
 }
@@ -356,11 +356,11 @@ void SetCronConfig() {
 	cJSON *fld = NULL;
 	UINT Byteswritten; // File read/write count
 	FRESULT fresult;
-
+	FIL fil; // File
 	fresult = f_stat("cron.ini", &finfo);
 	char *out_str = NULL;
 	int i = 0;
-	if (f_open(&USBHFile, (const TCHAR*) "cron.ini",
+	if (f_open(&fil, (const TCHAR*) "cron.ini",
 	FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
 		// Запись JSON в файл
 		printf("Write CRON in to file. \r\n");
@@ -378,7 +378,7 @@ void SetCronConfig() {
 
 		}
 		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&USBHFile, (const void*) out_str, strlen(out_str), &Byteswritten);
+		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
 		free(out_str);
 
 		if(fresult == FR_OK){
@@ -388,11 +388,8 @@ void SetCronConfig() {
 
 		cJSON_Delete(root_obj);
 		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&USBHFile);
+		f_close(&fil);
 	}
-
-
-
 }
 // если файл "pins.ini" существует, открываем для чтения.
 void GetPinConfig() {
@@ -401,13 +398,13 @@ void GetPinConfig() {
 	cJSON *root_obj = NULL;
 	FRESULT fresult;
 	UINT Byteswritten; // File read/write count
-
+	FIL fil; // File
 	fresult = f_stat("pins.ini", &finfo);
 	if (fresult == FR_OK) {
 		// если файл существует, открываем его
-		if (f_open(&USBHFile, (const TCHAR*) "pins.ini", FA_READ) == FR_OK) {
+		if (f_open(&fil, (const TCHAR*) "pins.ini", FA_READ) == FR_OK) {
 
-			fresult = f_read(&USBHFile, fsbuffer, sizeof(fsbuffer), &Byteswritten);
+			fresult = f_read(&fil, fsbuffer, sizeof(fsbuffer), &Byteswritten);
 			printf("PINS file EXISTS! \r\n");
 			root_obj = cJSON_Parse(fsbuffer);
 
@@ -440,10 +437,9 @@ void GetPinConfig() {
 
 			cJSON_Delete(root_obj);
 			memset(fsbuffer, '\0', sizeof(fsbuffer));
-			f_close(&USBHFile);
+			f_close(&fil);
 		}
 	}
-
 }
 
 // Если файл "pins.ini" не существует, создаем его и записываем данные
@@ -455,7 +451,8 @@ void SetPinConfig() {
 	FRESULT fresult;
 	char *out_str = NULL;
 	int i = 0;
-	if (f_open(&USBHFile, (const TCHAR*) "pins.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
+	FIL fil; // File
+	if (f_open(&fil, (const TCHAR*) "pins.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
 		// Запись JSON в файл
 
 		root_obj = cJSON_CreateArray();
@@ -487,7 +484,7 @@ void SetPinConfig() {
 			cJSON_AddStringToObject(fld, "condit", PinsConf[i].condit);
 		}
 		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&USBHFile, (const void*) out_str, strlen(out_str), &Byteswritten);
+		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
 		free(out_str);
 
 		if(fresult == FR_OK){
@@ -495,7 +492,7 @@ void SetPinConfig() {
 		}
 		cJSON_Delete(root_obj);
 		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&USBHFile);
+		f_close(&fil);
 	}
 }
 
@@ -505,13 +502,13 @@ void GetPinToPin() {
 	cJSON *root_obj = NULL;
 	FRESULT fresult;
 	UINT Byteswritten; // File read/write count
-
+	FIL fil; // File
 	fresult = f_stat("pintopin.ini", &finfo);
 	if (fresult == FR_OK) {
 		// если файл существует, открываем его
-		if (f_open(&USBHFile, (const TCHAR*) "pintopin.ini", FA_READ) == FR_OK) {
+		if (f_open(&fil, (const TCHAR*) "pintopin.ini", FA_READ) == FR_OK) {
 
-			fresult = f_read(&USBHFile, fsbuffer, sizeof(fsbuffer), &Byteswritten);
+			fresult = f_read(&fil, fsbuffer, sizeof(fsbuffer), &Byteswritten);
 
 			root_obj = cJSON_Parse(fsbuffer);
 
@@ -526,11 +523,9 @@ void GetPinToPin() {
 
 			cJSON_Delete(root_obj);
 			memset(fsbuffer, '\0', sizeof(fsbuffer));
-			f_close(&USBHFile);
+			f_close(&fil);
 		}
 	}
-
-
 }
 
 // Если файл "pintopin.ini" не существует, создаем его и записываем данные
@@ -541,7 +536,8 @@ void SetPinToPin() {
 	FRESULT fresult;
 	char *out_str = NULL;
 	int i = 0;
-	if (f_open(&USBHFile, (const TCHAR*) "pintopin.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
+	FIL fil; // File
+	if (f_open(&fil, (const TCHAR*) "pintopin.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
 		// Запись JSON в файл
 
 		root_obj = cJSON_CreateArray();
@@ -556,7 +552,7 @@ void SetPinToPin() {
 
 		}
 		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&USBHFile, (const void*) out_str, strlen(out_str), &Byteswritten);
+		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
 		free(out_str);
 
 		if(fresult == FR_OK){
@@ -564,9 +560,8 @@ void SetPinToPin() {
 		}
 		cJSON_Delete(root_obj);
 		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&USBHFile);
+		f_close(&fil);
 	}
-
 }
 
 
