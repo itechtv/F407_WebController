@@ -5,7 +5,7 @@ setings.c:246:6:GetSetingsConfig	5472	static
 setings.c:319:6:GetCronConfig	4464	static
 setings.c:353:6:SetCronConfig	4456	static
 setings.c:395:6:GetPinConfig	4464	static
-setings.c:446:6:SetPinConfig	4176	static
-setings.c:500:6:GetPinToPin	4456	static
-setings.c:532:6:SetPinToPin	4176	static
-setings.c:570:6:InitPin	32	static
+setings.c:556:6:SetPinConfig	4160	static
+setings.c:597:6:GetPinToPin	4456	static
+setings.c:629:6:SetPinToPin	4176	static
+setings.c:667:6:InitPin	32	static

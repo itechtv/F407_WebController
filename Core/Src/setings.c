@@ -443,57 +443,98 @@ void GetPinConfig() {
 }
 
 // Если файл "pins.ini" не существует, создаем его и записываем данные
+//void SetPinConfig() {
+////	FILINFO finfo;
+//	cJSON *root_obj = NULL;
+//	cJSON *fld = NULL;
+//	UINT Byteswritten; // File read/write count
+//	FRESULT fresult;
+//	char *out_str = NULL;
+//	int i = 0;
+//	FIL fil; // File
+//	if (f_open(&fil, (const TCHAR*) "pins.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
+//		// Запись JSON в файл
+//
+//		root_obj = cJSON_CreateArray();
+//		fld = cJSON_CreateObject();
+//
+//		for (i = 0; i < NUMPIN; i++)
+//		{
+//			cJSON_AddItemToArray(root_obj, fld = cJSON_CreateObject());
+//
+//			cJSON_AddNumberToObject(fld, "topin", PinsConf[i].topin);
+//			cJSON_AddNumberToObject(fld, "pwm", PinsConf[i].pwm);
+//			cJSON_AddNumberToObject(fld, "on", PinsConf[i].on);
+//			cJSON_AddNumberToObject(fld, "istate", PinsConf[i].istate);
+//			cJSON_AddNumberToObject(fld, "dvalue", PinsConf[i].dvalue);
+//			cJSON_AddNumberToObject(fld, "ponr", PinsConf[i].ponr);
+//			cJSON_AddStringToObject(fld, "ptype", PinsConf[i].ptype);
+//			cJSON_AddNumberToObject(fld, "binter", PinsConf[i].binter);
+//			cJSON_AddNumberToObject(fld, "hinter", PinsConf[i].hinter);
+//			cJSON_AddNumberToObject(fld, "repeat", PinsConf[i].repeat);
+//			cJSON_AddNumberToObject(fld, "rinter", PinsConf[i].rinter);
+//			cJSON_AddNumberToObject(fld, "dcinter", PinsConf[i].dcinter);
+//			cJSON_AddNumberToObject(fld, "pclick", PinsConf[i].pclick);
+//			cJSON_AddStringToObject(fld, "info", PinsConf[i].info);
+//			cJSON_AddNumberToObject(fld, "onoff", PinsConf[i].onoff);
+//			cJSON_AddNumberToObject(fld, "event", PinsConf[i].event);
+//			cJSON_AddNumberToObject(fld, "act", PinsConf[i].act);
+//			cJSON_AddNumberToObject(fld, "parametr", PinsConf[i].parametr);
+//			cJSON_AddNumberToObject(fld, "timeout", PinsConf[i].timeout);
+//			cJSON_AddStringToObject(fld, "condit", PinsConf[i].condit);
+//		}
+//		out_str = cJSON_PrintUnformatted(root_obj);
+//		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
+//		free(out_str);
+//
+//		if(fresult == FR_OK){
+//
+//		}
+//		cJSON_Delete(root_obj);
+//		memset(fsbuffer, '\0', sizeof(fsbuffer));
+//		f_close(&fil);
+//	}
+//}
+
+// Если файл "pins.ini" не существует, создаем его и записываем данные
 void SetPinConfig() {
-//	FILINFO finfo;
-	cJSON *root_obj = NULL;
-	cJSON *fld = NULL;
-	UINT Byteswritten; // File read/write count
-	FRESULT fresult;
-	char *out_str = NULL;
-	int i = 0;
-	FIL fil; // File
-	if (f_open(&fil, (const TCHAR*) "pins.ini",FA_CREATE_ALWAYS | FA_WRITE) == FR_OK) {
-		// Запись JSON в файл
+  FIL fil; // File
+  FRESULT fresult;
 
-		root_obj = cJSON_CreateArray();
-		fld = cJSON_CreateObject();
+  fresult = f_open(&fil, (const TCHAR*) "pins.ini", FA_CREATE_ALWAYS | FA_WRITE);
 
-		for (i = 0; i < NUMPIN; i++)
-		{
-			cJSON_AddItemToArray(root_obj, fld = cJSON_CreateObject());
+  if (fresult == FR_OK) {
+    for (int i = 0; i < NUMPIN; i++) {
 
-			cJSON_AddNumberToObject(fld, "topin", PinsConf[i].topin);
-			cJSON_AddNumberToObject(fld, "pwm", PinsConf[i].pwm);
-			cJSON_AddNumberToObject(fld, "on", PinsConf[i].on);
-			cJSON_AddNumberToObject(fld, "istate", PinsConf[i].istate);
-			cJSON_AddNumberToObject(fld, "dvalue", PinsConf[i].dvalue);
-			cJSON_AddNumberToObject(fld, "ponr", PinsConf[i].ponr);
-			cJSON_AddStringToObject(fld, "ptype", PinsConf[i].ptype);
-			cJSON_AddNumberToObject(fld, "binter", PinsConf[i].binter);
-			cJSON_AddNumberToObject(fld, "hinter", PinsConf[i].hinter);
-			cJSON_AddNumberToObject(fld, "repeat", PinsConf[i].repeat);
-			cJSON_AddNumberToObject(fld, "rinter", PinsConf[i].rinter);
-			cJSON_AddNumberToObject(fld, "dcinter", PinsConf[i].dcinter);
-			cJSON_AddNumberToObject(fld, "pclick", PinsConf[i].pclick);
-			cJSON_AddStringToObject(fld, "info", PinsConf[i].info);
-			cJSON_AddNumberToObject(fld, "onoff", PinsConf[i].onoff);
-			cJSON_AddNumberToObject(fld, "event", PinsConf[i].event);
-			cJSON_AddNumberToObject(fld, "act", PinsConf[i].act);
-			cJSON_AddNumberToObject(fld, "parametr", PinsConf[i].parametr);
-			cJSON_AddNumberToObject(fld, "timeout", PinsConf[i].timeout);
-			cJSON_AddStringToObject(fld, "condit", PinsConf[i].condit);
-		}
-		out_str = cJSON_PrintUnformatted(root_obj);
-		fresult = f_write(&fil, (const void*) out_str, strlen(out_str), &Byteswritten);
-		free(out_str);
+      f_printf(&fil, "topin\t\"%d\"\n", PinsConf[i].topin);
+      f_printf(&fil, "pwm\t\"%d\"\n", PinsConf[i].pwm);
+      f_printf(&fil, "on\t\"%d\"\n", PinsConf[i].on);
+      f_printf(&fil, "istate\t\"%d\"\n", PinsConf[i].istate);
+      f_printf(&fil, "dvalue\t\"%d\"\n", PinsConf[i].dvalue);
+      f_printf(&fil, "ponr\t\"%d\"\n", PinsConf[i].ponr);
+      f_printf(&fil, "ptype\t\"%s\"\n", PinsConf[i].ptype);
+      f_printf(&fil, "binter\t\"%d\"\n", PinsConf[i].binter);
+      f_printf(&fil, "hinter\t\"%d\"\n", PinsConf[i].hinter);
+      f_printf(&fil, "repeat\t\"%d\"\n", PinsConf[i].repeat);
+      f_printf(&fil, "rinter\t\"%d\"\n", PinsConf[i].rinter);
+      f_printf(&fil, "dcinter\t\"%d\"\n", PinsConf[i].dcinter);
+      f_printf(&fil, "pclick\t\"%d\"\n", PinsConf[i].pclick);
+      f_printf(&fil, "info\t\"%s\"\n", PinsConf[i].info);
+      f_printf(&fil, "onoff\t\"%d\"\n", PinsConf[i].onoff);
+      f_printf(&fil, "event\t\"%d\"\n", PinsConf[i].event);
+      f_printf(&fil, "act\t\"%d\"\n", PinsConf[i].act);
+      f_printf(&fil, "parametr\t\"%d\"\n", PinsConf[i].parametr);
+      f_printf(&fil, "timeout\t\"%d\"\n", PinsConf[i].timeout);
+      f_printf(&fil, "condit\t\"%s\"\n", PinsConf[i].condit);
+      f_printf(&fil, "\n");
 
-		if(fresult == FR_OK){
+    }
 
-		}
-		cJSON_Delete(root_obj);
-		memset(fsbuffer, '\0', sizeof(fsbuffer));
-		f_close(&fil);
-	}
+    f_close(&fil);
+    printf("File created successfully! \r\n");
+  } else {
+    printf("Error creating file! \r\n");
+  }
 }
 
 
